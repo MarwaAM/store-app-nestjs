@@ -62,6 +62,10 @@ export class AwsStack extends cdk.Stack {
 				scopes: [OAuthScope.OPENID, OAuthScope.EMAIL],
 			},
 		});
+
+		// TODO delete the domain after you create front end
+		// we will handle sign up and sign in from frontend client
+		// AWS SDK signin command
 		const domain = userPool.addDomain('userpool-domain', {
 			cognitoDomain: {
 				domainPrefix: 'store-app-signup-v1',

@@ -6,6 +6,7 @@ import {
 	UserPoolClientIdentityProvider,
 	UserPoolEmail,
 } from 'aws-cdk-lib/aws-cognito';
+import { CfnRole, OpenIdConnectProvider } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 export class AwsStack extends cdk.Stack {
@@ -75,5 +76,96 @@ export class AwsStack extends cdk.Stack {
 		domain.signInUrl(client, {
 			redirectUri: 'http://localhost',
 		});
+
+		const iamIdp = new OpenIdConnectProvider(this, 'githubIdentityProvider', {
+			url: 'https://token.actions.githubusercontent.com',
+			clientIds: ['sts.amazonaws.com'],
+		});
+
+		new CfnRole(this, 'githubIdpRole', {
+			assumeRolePolicyDocument: getTrustPolicyDoc(iamIdp.openIdConnectProviderArn),
+			roleName: 'githubIdpRole',
+			policies: [
+				{
+					policyName: 'cdkAssumePolicy',
+					policyDocument: getCdkAssumePolicy(),
+				},
+				{
+					policyName: 'githubCdkDeployPolicy',
+					policyDocument: getGithubCdkDeployPolicy(),
+				},
+			],
+		});
 	}
+}
+
+function getTrustPolicyDoc(openIdArn: string) {
+	return {
+		Version: '2012-10-17',
+		Statement: [
+			{
+				Effect: 'Allow',
+				Principal: {
+					Federated: openIdArn,
+				},
+				Action: 'sts:AssumeRoleWithWebIdentity',
+				Condition: {
+					StringEquals: {
+						'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
+					},
+					StringLike: {
+						'token.actions.githubusercontent.com:sub':
+							'repo:MarwaAM/store-app-nestjs:*',
+					},
+				},
+			},
+		],
+	};
+}
+
+function getCdkAssumePolicy() {
+	return {
+		Version: '2012-10-17',
+		Statement: [
+			{
+				Sid: 'assumerole',
+				Effect: 'Allow',
+				Action: ['sts:AssumeRole', 'iam:PassRole'],
+				Resource: [
+					'arn:aws:iam::755477715813:role/cdk-hnb659fds-deploy-role-755477715813-us-east-1',
+					'arn:aws:iam::755477715813:role/cdk-hnb659fds-file-publishing-role-755477715813-us-east-1',
+					'arn:aws:iam::755477715813:role/cdk-hnb659fds-lookup-role-755477715813-us-east-1',
+					'arn:aws:iam::755477715813:role/cdk-hnb659fds-cfn-exec-role-755477715813-us-east-1',
+				],
+			},
+		],
+	};
+}
+
+function getGithubCdkDeployPolicy() {
+	return {
+		Version: '2012-10-17',
+		Statement: [
+			{
+				Action: [
+					'cloudformation:CreateChangeSet',
+					'cloudformation:DeleteChangeSet',
+					'cloudformation:DescribeChangeSet',
+					'cloudformation:DescribeStacks',
+					'cloudformation:ExecuteChangeSet',
+					'cloudformation:CreateStack',
+					'cloudformation:UpdateStack',
+					'cloudformation:DescribeStackEvents',
+					'cloudformation:GetTemplate',
+					'cloudformation:DeleteStack',
+					'cloudformation:UpdateTerminationProtection',
+					'sts:GetCallerIdentity',
+					'cloudformation:GetTemplateSummary',
+				],
+				Resource: '*',
+				Effect: 'Allow',
+				Sid: 'CloudFormationPermissions',
+			},
+		],
+	};
 }

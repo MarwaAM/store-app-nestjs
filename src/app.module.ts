@@ -6,9 +6,10 @@ import { UserModule } from './user/user.module';
 import { UserService } from './user/user.service';
 import { CartModule } from './cart/cart.module';
 import { UserResolver } from './user/user.resolver';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UserModule, CartModule],
+  imports: [UserModule, CartModule, ConfigModule.forRoot()],
   controllers: [AppController, UserController],
   providers: [AppService, UserService, UserResolver],
 })

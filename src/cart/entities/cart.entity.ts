@@ -1,10 +1,10 @@
 export interface Item {
-  id: string;
-  price: number;
+	id: string;
+	price: number;
 }
 
 export class Cart {
-  userId: number;
-  items: Item[];
-  total: number;
+	userId: number;
+	items: Item[];
+	total: number;
 }

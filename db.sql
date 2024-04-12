@@ -53,7 +53,7 @@ ALTER TABLE cart_item ADD FOREIGN KEY (item_id) REFERENCES item (id);
 
 ALTER TABLE rating ADD FOREIGN KEY (item_id) REFERENCES item (id);
 
-ALTER TABLE rating ADD FOREIGN KEY (item_id) REFERENCES users (id);
+ALTER TABLE rating ADD FOREIGN KEY (user_id) REFERENCES users (id);
 
 ALTER TABLE orders ADD FOREIGN KEY (user_id) REFERENCES users (id);
 

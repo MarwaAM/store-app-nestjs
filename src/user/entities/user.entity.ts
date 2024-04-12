@@ -1,7 +1,8 @@
-// TODO update all user DTOs to be in sync with cognito user! not passwords!
 export class User {
-	userName: string;
 	id: number;
+	username: string;
+	email: string;
 	age: number;
-	password: string;
+	created_at: string;
+	gender: string;
 }

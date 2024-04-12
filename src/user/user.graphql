@@ -1,21 +1,25 @@
 type User {
-  userName: String
+  username: String
   id: Int
   age: Int
-  password: String
-
+  email: String
+  created_at: String
+  gender: String
 }
 
 input CreateUserInput {
-  userName: String!
+  username: String!
+  email: String!
   age: Int!
-  password: String!
+  gender: String!
 }
 
 input UpdateUserInput {
   id: Int!
-  userName: String
+  username: String
   age: Int
+  email: String
+  gender: String
 }
 
 type Query {

@@ -13,8 +13,8 @@ import {
 import { Response } from 'express';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { GetUserDto } from './dto/get-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -27,8 +27,9 @@ export class UserController {
 		return this.userService.create(createUserDto);
 	}
 
+	// TODO add admin guard
 	@Get()
-	findAll(): GetUserDto[] {
+	findAll(): User[] {
 		return this.userService.findAll();
 	}
 

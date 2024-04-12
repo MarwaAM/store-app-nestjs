@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { GetUserDto } from './dto/get-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -10,10 +9,12 @@ export class UserService implements OnModuleInit {
 	private users: User[] = [];
 
 	onModuleInit() {
+		// create random users for dev purpose
 		for (let i = 0; i < 100; i++) {
 			this.users.push({
-				userName: `User${i}`,
-				password: `User${i}`,
+				username: `User${i}`,
+				email: `User${i}@test.com`,
+				created_at: new Date().toISOString(),
 				id: i,
 				age: Math.round(Math.random() * 80),
 			});
@@ -21,37 +22,25 @@ export class UserService implements OnModuleInit {
 	}
 
 	create(createUserDto: CreateUserDto) {
-		const createdUser = {
+		const createdUser: User = {
 			...createUserDto,
 			id: this.users.length + 1,
+			created_at: new Date().toISOString(),
 		};
 		this.users.push(createdUser);
 
-		delete createdUser.password;
 		return createdUser;
 	}
 
-	findAll(): GetUserDto[] {
-		return this.users.map(user => {
-			return {
-				id: user.id,
-				userName: user.userName,
-				age: user.age,
-			};
-		});
+	findAll(): User[] {
+		return this.users;
 	}
 
-	findOne(id: number): GetUserDto | undefined {
+	findOne(id: number): User | undefined {
 		const foundUser = this.users.findIndex(user => user.id === id);
 
 		if (foundUser >= 0) {
-			const user = this.users[foundUser];
-
-			return {
-				userName: user.userName,
-				id: user.id,
-				age: user.age,
-			};
+			return this.users[foundUser];
 		}
 		return undefined;
 	}
@@ -61,12 +50,7 @@ export class UserService implements OnModuleInit {
 		if (foundUser >= 0) {
 			this.users[foundUser] = Object.assign({ ...this.users[foundUser] }, updateUserDto);
 
-			const updatedUser = this.users[foundUser];
-			return {
-				id: updatedUser.id,
-				userName: updatedUser.userName,
-				age: updatedUser.age,
-			};
+			return this.users[foundUser];
 		}
 	}
 

@@ -13,6 +13,8 @@ export class AwsStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
 		super(scope, id, props);
 
+		// TODO add pre-sign up trigger lambda to validate
+		// user input (esp birthdate!)
 		const userPool = new UserPool(this, 'store-app-nestjs', {
 			userPoolName: 'store-app-nestjs-v1',
 			selfSignUpEnabled: true,

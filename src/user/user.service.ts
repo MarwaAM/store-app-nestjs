@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { GetUserDto } from './dto/get-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -10,68 +9,66 @@ export class UserService implements OnModuleInit {
 	private users: User[] = [];
 
 	onModuleInit() {
+		// create random users for dev purpose
 		for (let i = 0; i < 100; i++) {
 			this.users.push({
-				userName: `User${i}`,
-				password: `User${i}`,
+				username: `User${i}`,
+				email: `User${i}@test.com`,
+				created_at: new Date().toISOString(),
 				id: i,
 				age: Math.round(Math.random() * 80),
+				gender: 'female',
 			});
 		}
 	}
 
 	create(createUserDto: CreateUserDto) {
-		const createdUser = {
+		const { username, email, age, gender } = createUserDto;
+		if (!username || !email || !age || !gender) {
+			throw new Error('Invalid Input');
+		}
+		const createdUser: User = {
 			...createUserDto,
 			id: this.users.length + 1,
+			created_at: new Date().toISOString(),
 		};
 		this.users.push(createdUser);
 
-		delete createdUser.password;
 		return createdUser;
 	}
 
-	findAll(): GetUserDto[] {
-		return this.users.map(user => {
-			return {
-				id: user.id,
-				userName: user.userName,
-				age: user.age,
-			};
-		});
+	findAll(): User[] {
+		return this.users;
 	}
 
-	findOne(id: number): GetUserDto | undefined {
-		const foundUser = this.users.findIndex(user => user.id === id);
+	findOne(username: string): User | undefined {
+		const foundUser = this.users.findIndex(user => user.username === username);
 
 		if (foundUser >= 0) {
-			const user = this.users[foundUser];
-
-			return {
-				userName: user.userName,
-				id: user.id,
-				age: user.age,
-			};
+			return this.users[foundUser];
 		}
 		return undefined;
 	}
 
-	update(id: number, updateUserDto: UpdateUserDto) {
-		const foundUser = this.users.findIndex(user => user.id === id);
-		if (foundUser >= 0) {
-			this.users[foundUser] = Object.assign({ ...this.users[foundUser] }, updateUserDto);
+	update(username: string, updateUserDto: UpdateUserDto) {
+		const userIndex = this.users.findIndex(user => user.username === username);
 
-			const updatedUser = this.users[foundUser];
-			return {
-				id: updatedUser.id,
-				userName: updatedUser.userName,
-				age: updatedUser.age,
+		if (userIndex >= 0) {
+			this.users[userIndex] = {
+				username,
+				id: this.users[userIndex].id,
+				created_at: this.users[userIndex].created_at,
+				email: this.users[userIndex].email,
+				age: updateUserDto.age ?? this.users[userIndex].age,
+				gender: updateUserDto.gender ?? this.users[userIndex].gender,
 			};
+
+			return this.users[userIndex];
 		}
 	}
 
-	remove(id: number) {
-		const foundUser = this.users.findIndex(user => user.id === id);
+	remove(username: string) {
+		const foundUser = this.users.findIndex(user => user.username === username);
 		if (foundUser >= 0) {
 			const deletedUser = this.users.splice(foundUser)[0];
 

@@ -17,11 +17,16 @@ export class UserService implements OnModuleInit {
 				created_at: new Date().toISOString(),
 				id: i,
 				age: Math.round(Math.random() * 80),
+				gender: 'female',
 			});
 		}
 	}
 
 	create(createUserDto: CreateUserDto) {
+		const { username, email, age, gender } = createUserDto;
+		if (!username || !email || !age || !gender) {
+			throw new Error('Invalid Input');
+		}
 		const createdUser: User = {
 			...createUserDto,
 			id: this.users.length + 1,
@@ -36,8 +41,8 @@ export class UserService implements OnModuleInit {
 		return this.users;
 	}
 
-	findOne(id: number): User | undefined {
-		const foundUser = this.users.findIndex(user => user.id === id);
+	findOne(username: string): User | undefined {
+		const foundUser = this.users.findIndex(user => user.username === username);
 
 		if (foundUser >= 0) {
 			return this.users[foundUser];
@@ -45,17 +50,25 @@ export class UserService implements OnModuleInit {
 		return undefined;
 	}
 
-	update(id: number, updateUserDto: UpdateUserDto) {
-		const foundUser = this.users.findIndex(user => user.id === id);
-		if (foundUser >= 0) {
-			this.users[foundUser] = Object.assign({ ...this.users[foundUser] }, updateUserDto);
+	update(username: string, updateUserDto: UpdateUserDto) {
+		const userIndex = this.users.findIndex(user => user.username === username);
 
-			return this.users[foundUser];
+		if (userIndex >= 0) {
+			this.users[userIndex] = {
+				username,
+				id: this.users[userIndex].id,
+				created_at: this.users[userIndex].created_at,
+				email: this.users[userIndex].email,
+				age: updateUserDto.age ?? this.users[userIndex].age,
+				gender: updateUserDto.gender ?? this.users[userIndex].gender,
+			};
+
+			return this.users[userIndex];
 		}
 	}
 
-	remove(id: number) {
-		const foundUser = this.users.findIndex(user => user.id === id);
+	remove(username: string) {
+		const foundUser = this.users.findIndex(user => user.username === username);
 		if (foundUser >= 0) {
 			const deletedUser = this.users.splice(foundUser)[0];
 

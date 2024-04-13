@@ -15,8 +15,7 @@ input CreateUserInput {
 }
 
 input UpdateUserInput {
-  id: Int!
-  username: String
+  username: String!
   age: Int
   email: String
   gender: String
@@ -24,11 +23,11 @@ input UpdateUserInput {
 
 type Query {
   GetAllUsers: [User]!
-  GetUserById(id: Int!): User
+  GetUserByUsername(username: String!): User
 }
 
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
-  removeUser(id: Int!): User
+  removeUser(username: String!): User
 }

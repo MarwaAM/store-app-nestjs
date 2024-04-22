@@ -1,5 +1,6 @@
-import { Item } from '../entities/cart.entity';
+import { ItemInCart } from '../entities/cart.entity';
 
 export class UpdateCartDto {
-	item: Item;
+	item: ItemInCart;
+	quantity: number;
 }

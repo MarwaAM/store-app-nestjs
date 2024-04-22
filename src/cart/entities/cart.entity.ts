@@ -1,10 +1,13 @@
-export interface Item {
-	id: string;
+export class ItemInCart {
+	id: number;
+	name: string;
 	price: number;
+	seller: string;
 }
 
-export class Cart {
-	userId: number;
-	items: Item[];
-	total: number;
+export class CartItem {
+	user_id: number;
+	item: ItemInCart;
+	quantity: number;
+	created_at: string
 }
